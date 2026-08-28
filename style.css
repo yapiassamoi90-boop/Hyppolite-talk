@@ -1,0 +1,39 @@
+cat << 'EOF' > style.css
+:root {
+  --bg-color: #0f172a;
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #10b981;
+  --border-color: #334155;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+.app-container { background-color: var(--card-bg); width: 100%; max-width: 480px; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border-color); }
+h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; }
+h3 { font-size: 1.1rem; margin: 16px 0 10px 0; color: #cbd5e1; }
+hr { border: 0; height: 1px; background: var(--border-color); margin: 20px 0; }
+.profile-box { background: #0f172a; padding: 16px; border-radius: var(--radius); margin-bottom: 16px; border: 1px solid var(--border-color); }
+.id-badge { margin-top: 10px; font-size: 0.9rem; color: var(--text-muted); }
+.id-badge b { color: #38bdf8; word-break: break-all; }
+input[type="text"] { width: 100%; padding: 10px 12px; margin-bottom: 8px; background-color: #1e293b; border: 1px solid var(--border-color); border-radius: var(--radius); color: var(--text-main); }
+button { width: 100%; padding: 10px; background-color: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; }
+button:disabled { background-color: #475569; opacity: 0.6; }
+#status { text-align: center; font-style: italic; color: #38bdf8; margin: 12px 0; }
+.call-controls { text-align: center; }
+#active-call-info { color: var(--success); }
+#end-btn { background-color: var(--danger); }
+.add-contact-form { margin-bottom: 16px; }
+.contacts-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.contact-item { background: #0f172a; padding: 12px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); }
+.contact-info { display: flex; flex-direction: column; gap: 2px; }
+.contact-actions { display: flex; gap: 6px; }
+.contact-actions button { padding: 6px 10px; font-size: 0.85rem; }
+.btn-call { background-color: var(--success); }
+.btn-del { background-color: transparent; border: 1px solid var(--border-color); }
+EOF
