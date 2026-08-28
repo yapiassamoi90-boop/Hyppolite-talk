@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carena Talk</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <h2>Carena Talk</h2>
+    <div class="profile-box">
+      <input type="text" id="my-name-input" placeholder="Votre nom / Poste (ex: Quai 1)">
+      <button onclick="saveMyName()">Valider mon Nom</button>
+      <p class="id-badge">Mon ID d'appel : <b id="my-id">Génération...</b></p>
+    </div>
+    <p id="status">Initialisation...</p>
+    <div class="call-controls">
+      <p id="active-call-info" style="display: none; font-weight: bold; margin-bottom: 10px;"></p>
+      <button id="end-btn" onclick="endCall()" disabled>Raccrocher</button>
+    </div>
+    <hr>
+    <h3>Ajouter un contact</h3>
+    <div class="add-contact-form">
+      <input type="text" id="contact-name" placeholder="Nom du contact (ex: Chaudronnerie)">
+      <input type="text" id="contact-id" placeholder="ID Carena du contact">
+      <button onclick="addContact()">Enregistrer le contact</button>
+    </div>
+    <h3>Carnet d'adresses</h3>
+    <ul id="contacts-list" class="contacts-list"></ul>
+  </div>
+  <audio id="remote-audio" autoplay playsinline></audio>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker enregistré :', reg.scope))
+          .catch((err) => console.log('Échec Service Worker :', err));
+      });
+    }
+  </script>
+</body>
+</html>
