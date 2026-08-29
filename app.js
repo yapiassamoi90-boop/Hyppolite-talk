@@ -1,4 +1,3 @@
-cat << 'EOF' > app.js
 let peer = null;
 let currentCall = null;
 let localStream = null;
@@ -140,4 +139,3 @@ function findContactName(id) {
   const match = contacts.find(c => c.id === id);
   return match ? match.name : null;
 }
-EOF
