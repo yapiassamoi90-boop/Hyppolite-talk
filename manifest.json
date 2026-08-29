@@ -1,4 +1,3 @@
-cat << 'EOF' > manifest.json
 {
   "name": "Carena Talk",
   "short_name": "CarenaTalk",
@@ -19,4 +18,3 @@ cat << 'EOF' > manifest.json
     }
   ]
 }
-EOF
