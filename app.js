@@ -27,7 +27,7 @@ function saveMyName() {
 }
 
 function initPeer() {
-  const hostIp = window.location.hostname || '192.168.43.1';
+  const hostIp = '192.168.43.1';
   peer = new Peer({ host: hostIp, port: 9000, path: '/carena' });
 
   peer.on('open', (id) => {
