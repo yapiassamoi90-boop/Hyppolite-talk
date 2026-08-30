@@ -19,29 +19,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function saveMyName() {
-  const name = myNameInput.value.trim();
+  const name = myNameInput.value.trim().toLowerCase();
   if (name) {
     localStorage.setItem('carena_user_name', name);
-    alert('Nom enregistré avec succès !');
+    alert('Nom enregistré ! Reconnexion avec ton nouveau pseudo...');
+    if (peer) peer.destroy();
+    initPeer();
+  } else {
+    alert('Entre un nom valide');
   }
 }
 
 function initPeer() {
   statusDisplay.innerText = "Initialisation...";
+  const savedName = localStorage.getItem('carena_user_name');
   
-  // Utilisation de la configuration cloud standard pour éviter les blocages HTTPS/HTTP du navigateur
-  peer = new Peer({
+  // On utilise le nom enregistré comme ID unique personnalisé
+  peer = new Peer(savedName || undefined, {
     debug: 2
   });
 
   peer.on('open', (id) => {
-    myIdDisplay.innerText = id;
+    myIdDisplay.innerText = id; // Affichera directement ton nom
     statusDisplay.innerText = "Prêt (Connecté)";
   });
 
   peer.on('error', (err) => {
     console.error(err);
-    statusDisplay.innerText = "Erreur : " + err.type;
+    if (err.type === 'unavailable-id') {
+      statusDisplay.innerText = "Erreur : Ce nom est déjà pris !";
+      alert("Ce nom est déjà utilisé sur le réseau. Choisis-en un autre.");
+    } else {
+      statusDisplay.innerText = "Erreur : " + err.type;
+    }
   });
 
   peer.on('call', (call) => {
@@ -106,7 +116,7 @@ function addContact() {
   const nameInput = document.getElementById('contact-name');
   const idInput = document.getElementById('contact-id');
   const name = nameInput.value.trim();
-  const id = idInput.value.trim();
+  const id = idInput.value.trim().toLowerCase(); // L'ID correspond au nom/pseudo du contact
   if (!name || !id) return alert('Champs requis');
   contacts.push({ name, id });
   localStorage.setItem('carena_contacts', JSON.stringify(contacts));
