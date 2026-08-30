@@ -27,12 +27,16 @@ function saveMyName() {
 }
 
 function initPeer() {
-  const hostIp = '192.168.43.1';
-  peer = new Peer({ host: hostIp, port: 9000, path: '/carena' });
+  statusDisplay.innerText = "Initialisation...";
+  
+  // Utilisation de la configuration cloud standard pour éviter les blocages HTTPS/HTTP du navigateur
+  peer = new Peer({
+    debug: 2
+  });
 
   peer.on('open', (id) => {
     myIdDisplay.innerText = id;
-    statusDisplay.innerText = "Prêt (Mode Local)";
+    statusDisplay.innerText = "Prêt (Connecté)";
   });
 
   peer.on('error', (err) => {
