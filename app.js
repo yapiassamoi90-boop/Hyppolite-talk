@@ -1,5 +1,6 @@
 let peer = null;
 let currentCall = null;
+let incomingCallInstance = null;
 let localStream = null;
 let contacts = JSON.parse(localStorage.getItem('carena_contacts')) || [];
 
@@ -10,6 +11,10 @@ const endBtn = document.getElementById('end-btn');
 const remoteAudio = document.getElementById('remote-audio');
 const contactsList = document.getElementById('contacts-list');
 const activeCallInfo = document.getElementById('active-call-info');
+
+const incomingModal = document.getElementById('incoming-call-modal');
+const incomingCallerName = document.getElementById('incoming-caller-name');
+const ringtoneAudio = document.getElementById('ringtone-audio');
 
 document.addEventListener('DOMContentLoaded', () => {
   const savedName = localStorage.getItem('carena_user_name');
@@ -22,6 +27,7 @@ function saveMyName() {
   const name = myNameInput.value.trim().toLowerCase();
   if (name) {
     localStorage.setItem('carena_user_name', name);
+    myNameInput.value = name;
     alert('Nom enregistré ! Reconnexion avec ton nouveau pseudo...');
     if (peer) peer.destroy();
     initPeer();
@@ -34,13 +40,18 @@ function initPeer() {
   statusDisplay.innerText = "Initialisation...";
   const savedName = localStorage.getItem('carena_user_name');
   
-  // On utilise le nom enregistré comme ID unique personnalisé
-  peer = new Peer(savedName || undefined, {
+  if (!savedName) {
+    statusDisplay.innerText = "En attente d'un nom...";
+    myIdDisplay.innerText = "Non défini";
+    return;
+  }
+
+  peer = new Peer(savedName, {
     debug: 2
   });
 
   peer.on('open', (id) => {
-    myIdDisplay.innerText = id; // Affichera directement ton nom
+    myIdDisplay.innerText = id;
     statusDisplay.innerText = "Prêt (Connecté)";
   });
 
@@ -55,22 +66,52 @@ function initPeer() {
   });
 
   peer.on('call', (call) => {
+    incomingCallInstance = call;
     const callerName = findContactName(call.peer) || call.peer;
-    if (confirm(`Appel entrant de : ${callerName}. Répondre ?`)) {
-      statusDisplay.innerText = "Connexion...";
-      navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-        .then((stream) => {
-          localStream = stream;
-          call.answer(stream);
-          currentCall = call;
-          call.on('stream', (remoteStream) => handleRemoteStream(remoteStream, callerName));
-          call.on('close', () => resetCallState("Appel terminé"));
-        })
-        .catch(() => alert("Accès micro refusé"));
-    } else {
-      call.close();
-    }
+    
+    incomingCallerName.innerText = callerName;
+    incomingModal.style.display = 'flex';
+    
+    ringtoneAudio.play().catch(e => console.log("Lecture audio bloquée :", e));
+    if (navigator.vibrate) navigator.vibrate([500, 500, 500, 500]);
   });
+}
+
+function answerIncomingCall() {
+  stopRingtone();
+  incomingModal.style.display = 'none';
+  statusDisplay.innerText = "Connexion...";
+
+  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then((stream) => {
+      localStream = stream;
+      incomingCallInstance.answer(stream);
+      currentCall = incomingCallInstance;
+      
+      currentCall.on('stream', (remoteStream) => handleRemoteStream(remoteStream, incomingCallerName.innerText));
+      currentCall.on('close', () => resetCallState("Appel terminé"));
+    })
+    .catch(() => {
+      alert("Accès micro refusé");
+      incomingCallInstance.close();
+      resetCallState("Prêt (Connecté)");
+    });
+}
+
+function rejectIncomingCall() {
+  stopRingtone();
+  incomingModal.style.display = 'none';
+  if (incomingCallInstance) {
+    incomingCallInstance.close();
+    incomingCallInstance = null;
+  }
+  statusDisplay.innerText = "Prêt (Connecté)";
+}
+
+function stopRingtone() {
+  ringtoneAudio.pause();
+  ringtoneAudio.currentTime = 0;
+  if (navigator.vibrate) navigator.vibrate(0);
 }
 
 function callContact(targetId, targetName) {
@@ -83,10 +124,15 @@ function callContact(targetId, targetName) {
       call.on('stream', (remoteStream) => handleRemoteStream(remoteStream, targetName));
       call.on('close', () => resetCallState("Appel terminé"));
     })
-    .catch(() => alert("Accès micro refusé"));
+    .catch((err) => {
+      console.error(err);
+      alert("Erreur micro ou appel impossible");
+      resetCallState("Prêt (Connecté)");
+    });
 }
 
 function handleRemoteStream(remoteStream, callerName) {
+  stopRingtone();
   remoteAudio.srcObject = remoteStream;
   remoteAudio.play().catch(e => console.error(e));
   statusDisplay.innerText = "En communication";
@@ -101,13 +147,16 @@ function endCall() {
 }
 
 function resetCallState(message) {
+  stopRingtone();
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
     localStream = null;
   }
   if (remoteAudio.srcObject) remoteAudio.srcObject = null;
   currentCall = null;
-  statusDisplay.innerText = message || "En attente";
+  incomingCallInstance = null;
+  incomingModal.style.display = 'none';
+  statusDisplay.innerText = message || "Prêt (Connecté)";
   activeCallInfo.style.display = "none";
   endBtn.disabled = true;
 }
@@ -116,7 +165,7 @@ function addContact() {
   const nameInput = document.getElementById('contact-name');
   const idInput = document.getElementById('contact-id');
   const name = nameInput.value.trim();
-  const id = idInput.value.trim().toLowerCase(); // L'ID correspond au nom/pseudo du contact
+  const id = idInput.value.trim().toLowerCase();
   if (!name || !id) return alert('Champs requis');
   contacts.push({ name, id });
   localStorage.setItem('carena_contacts', JSON.stringify(contacts));
@@ -133,7 +182,7 @@ function deleteContact(index) {
 function renderContacts() {
   contactsList.innerHTML = '';
   if (contacts.length === 0) {
-    contactsList.innerHTML = '<li style="color:#64748b;">Aucun contact</li>';
+    contactsList.innerHTML = '<li style="color:#64748b; text-align:center; padding:10px;">Aucun contact</li>';
     return;
   }
   contacts.forEach((contact, index) => {
