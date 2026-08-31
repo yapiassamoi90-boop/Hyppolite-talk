@@ -90,7 +90,7 @@ input[type="text"] {
   background-color: #1f2937; 
   border: 1px solid #374151; 
   border-radius: var(--radius); 
-  color: #ffffff !important; /* Force le texte tapé à être blanc et lisible */
+  color: #ffffff !important;
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
