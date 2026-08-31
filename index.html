@@ -32,7 +32,26 @@
     <h3>Carnet d'adresses</h3>
     <ul id="contacts-list" class="contacts-list"></ul>
   </div>
+
   <audio id="remote-audio" autoplay playsinline></audio>
+
+  <!-- Fenêtre modale d'appel entrant -->
+  <div id="incoming-call-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+    <div style="background: #111827; padding: 24px; border-radius: 16px; border: 1px solid #374151; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+      <h3 style="color: #38bdf8; margin-bottom: 10px; font-size: 1.2rem;">📞 Appel entrant...</h3>
+      <p id="incoming-caller-name" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; color: #f9fafb;"></p>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="answerIncomingCall()" style="background-color: #10b981; flex: 1;">Décrocher</button>
+        <button onclick="rejectIncomingCall()" style="background-color: #ef4444; flex: 1;">Refuser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Élément audio pour la sonnerie -->
+  <audio id="ringtone-audio" loop>
+    <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+  </audio>
+
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
